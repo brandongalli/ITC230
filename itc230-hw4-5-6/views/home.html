@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+    <head>   
+        <title>ITC230 Movie</title>
+        <style>body{
+                background-color: lightslategray;
+            }</style>
+    </head>
+
+    <body>
+        <h2>ITC230 Movie Database</h2>
+
+        <fieldset style="margin-right: 50%;">
+        <h3>Movie Search</h3>
+        <form action="/detail" method="post">
+            <legend>Enter Movie Title:</legend>
+                <input type=text name="movieName">
+                <br>
+                <br>
+            <button>Submit</button>
+            
+        
+        
+        </form>
+        </fieldset>
+
+
+        <br>
+
+        <fieldset style="margin-right: 50%;">
+        <h3>Add Movie</h3>
+        <form action="/api/added/" method="post">
+            <legend>Movie Name:</legend>
+                <input type=text name="movieName">
+            <legend>Producer:</legend>
+                <input type=int name="producer">
+            <legend>Release:</legend>
+                <input type=text name="release">
+                <br>
+                <br>
+            <button>Submit</button>
+        </form>
+        </fieldset>
+
+        <br>
+        <a href="/about">About Page</a>
+
+        
+
+    </body>
+
+</html>

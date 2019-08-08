@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<head>
+    <title>Movie Database</title>    
+    <style>body{
+        background-color: lightslategray;
+    }</style>
+</head>
+<html>
+    <body>
+<h1>Movie Details: {{movieName}}</h1>
+
+
+    
+{{#if movie}}
+    <h4>{{movie}}</h4>
+{{else}}
+    <h3>Movie is not located in this database</h3>
+{{/if}}
+
+<a href="/delete?movieName={{movie.movieName}}">
+    Delete this movie?
+</a>
+<br><br>
+<a href="/">Home Page</a>
+<span>&dash;</span>
+<a href="/about">About Page</a>
+</body>
+
+</html>
