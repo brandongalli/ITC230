@@ -1,0 +1,209 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>ITC230 Movie App</title>
+
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+ 
+ <style type="text/css">
+  .flex-container {
+      display: -webkit-flex;
+      display: flex;
+      width: 600px;
+      background-color: lightgrey;
+  }
+
+  #item-list {
+      background-color: rgb(53, 77, 143);
+      width: 30%;
+      padding: 0px 10px 0px 0px;
+  }
+  #item-details {
+      background-color: rgb(84, 94, 105);
+      width: 75%;
+      padding: 10px;
+  }
+</style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+
+<script type="text/babel">
+  
+    // define overal app component
+    class MovieApp extends React.Component{
+      constructor(props){
+        super(props); 
+        this.state = {
+          items: {{{movies}}},
+          filter: "", // search term 
+          curItem: {} // current selected item 
+        };
+
+        // bind App context to functions used by child components
+        this.onSearch = this.onSearch.bind(this);
+        this.showDetails = this.showDetails.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.onSave = this.onSave.bind(this);
+        this.onDelete = this.onDelete.bind(this);
+        this.onClear = this.onClear.bind(this);
+
+      }
+
+      // handle changes to search form
+      onSearch(event) {
+        // set search term. react will handle component updates 
+        this.setState({filter: event.target.value.toLowerCase() });
+      }
+
+      // show item details when list item clicked
+      showDetails(event) {
+        // event.target is item clicked.
+        let editItem = this.state.items.find((item) => {
+          return item.movieName == event.target.movieName;
+        });
+        this.setState({curItem: editItem});
+      }
+
+      // clear details form
+      onClear() {
+        this.setState({curItem: {}});
+      }
+
+      // handle detail changes
+      onChange(event) {
+        var newItem = this.state.curItem;
+        newItem[event.target.name] = event.target.value
+        this.setState({curItem: newItem});
+      }
+
+      // Handle item save
+      onSave() {
+        let newItem = this.state.curItem;
+        if (!newItem.movieName) {
+          return;
+        }
+
+        fetch("/api/v1/add/", {
+          method: "POST",
+        	headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newItem)
+        }).then(res => res.json())
+        	.then((json) => {
+
+          let newData;
+          if (!newItem.movieName) { // add new item to array
+            newData = this.state.items;
+            newItem.movieName = json.movieName;
+            newData.push(newItem);
+          } else { // update existing item 
+            newData = this.state.items.map((item) => {
+              if (item.movieName === newItem.movieName) {
+                item = newItem; 
+              }
+              return item;
+            });          
+          }
+  
+          // Update state with new array
+          this.setState({items: newData});
+        });
+      }
+      
+      // Handle item delete
+      onDelete() {
+        let movieName = this.state.curItem.movieName;
+        
+        fetch("/api/v1/delete/" + movieName).then((response) => {
+          return response.json();
+        }).then((results) => {
+          // Filter all items except the one to be removed
+          const remainder = this.state.items.filter((item) => {
+            return item.movieName !== movieName;
+          });
+          // Update state with new array & clear current item
+          this.setState({items: remainder, curItem: {}});
+        });
+      }
+    
+      render() {
+        // render app UI elements
+        return (
+          <div>
+          <MovieName movieName="Movie List" />
+          <SearchForm filter={this.state.filter} change={this.onSearch} />
+          <div className="flex-container">
+            <ItemList
+                items={this.state.items} 
+                filter={this.state.filter}
+                show={this.showDetails}
+            />
+            <ItemDetails item={this.state.curItem} change={this.onChange} save={this.onSave} reset={this.onClear} delete={this.onDelete} />
+            </div>
+          </div>
+          );
+      }
+    }
+    
+    // UI elements
+    const MovieName = ({movieName}) => {
+        return (
+           <div><h2>{movieName}</h2></div>
+        );
+    }
+
+    const SearchForm = (props) => {
+        return (
+          <div>
+            <input
+              type="text" placeholder="Enter a search term"
+              value={props.filter}
+              onChange={props.change}
+            /><p/>
+          </div>
+        );
+    }
+
+    const ItemList = ({items, filter, show}) => {
+      // return items that match search entry field, or all items if no entry
+      const itemNodes = items.map((item, i) => {
+        if (!filter || item.movieName.toLowerCase().includes(filter)) { 
+          return <li id={item.movieName} key={i} onClick={show}>{item.movieName}</li>
+        }
+      });
+      return <span id="item-list"><ul>{itemNodes}</ul></span>;
+    }
+    
+    const ItemDetails = (props) => {
+        return (
+          <span id="item-details">
+            <h3>Details:</h3>
+            <form>
+              <input type="text" name="movieName" placeholder="Movie Name" onChange={props.change} value={props.item.movieName || ""} /><p/>
+              <input type="text" name="producer" placeholder="Producer"  onChange={props.change} value={props.item.producer || ""} /><p/>
+              <input type="date" name="release" placeholder="Release Date" onChange={props.change} value={getISOstring(props.item.release)} />
+              <p/>
+            </form>
+            <button onClick={props.save}>Save</button>  <button onClick={props.reset}>Reset</button> <button onClick={props.delete}>Delete</button>
+          </span>
+        );
+    }
+  
+    ReactDOM.render(<MovieApp />, document.getElementById('root'));
+
+  // convert date value to yyyy-mm-dd expected by HTML5 date field
+  function getISOstring(dateString) {
+    let date = (dateString) ? new Date(dateString) : new Date();
+    let month = (date.getMonth() >=9) ? date.getMonth()+1 : "0" + (date.getMonth()+1);
+    let day = (date.getDate() >=10) ? date.getDate() : "0" + date.getDate();
+    return date.getFullYear() + "-" + month + "-" + day;    
+  }
+  
+</script>
+</body>
+</html>
