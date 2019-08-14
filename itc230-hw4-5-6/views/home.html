@@ -2,9 +2,6 @@
 <html>
 
     <head>   
-            <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-            <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-            <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
         <title>ITC230 Movie</title>
         <style>body{
                 background-color: lightslategray;
@@ -47,49 +44,10 @@
         </fieldset>
 
         <br>
-
         <a href="/about">About Page</a>
 
-        <div id='root'/>
-        <script type="text/babel">
+        
 
-const List = (props, clickHandler) => {
-    console.log(props);
-
-    const links = props.items.map((item, i) =>{
-        return <li onClick={props.clickHandler} key={i}>{item.movieName}</li>
-        if (target.clickHandler) {
-            return <li onClick={props.clickHandler} key={i}>{item.movieName} {item.producer} {item.release}</li>
-        }
-    })
-    return <div>Movies in Database<p/>{links}</div>;
-}
-         
-    
-        class Movies extends React.Component {  
-            constructor(props) {  
-              super(props);  
-              this.state= {
-                  movies: {{{movies}}}
-                  
-                }; 
-                this.handleClick = this.handleClick.bind(this);
-            } 
-            render() { 
-              return ( <div> <h1>Movies</h1>  <List items={this.state.movies} clickHandler={this.handleClick}/>  </div> ); 
-            } 
-
-            handleClick = (event)=>{
-                
-            console.log(event.target)
-                    }
-                    
-                
-            }
-
-          
-          ReactDOM.render(  <Movies />, document.getElementById('root') );
-        </script>
     </body>
 
 </html>
